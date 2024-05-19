@@ -74,11 +74,14 @@ async def update_expense(expense_id: int, new_expense: Expense):
     """
     if new_expense is None:
         raise ValueError("Expense object is null")
-    if await get_expense_by_id(new_expense.id) is None:
+    existing_expense = await get_expense_by_id(new_expense.id)
+    if existing_expense is None:
         raise ValueError("Expense not found")
+    existing_expense = Expense(**existing_expense)
     try:
-        validation_service.is_valid_expense(new_expense)
-        return await repository.update(Collections.expenses, expense_id, new_expense.dict())
+        update_expense_properties(existing_expense, new_expense)
+        validation_service.is_valid_expense(existing_expense)
+        return await repository.update(Collections.expenses, expense_id, existing_expense.dict())
     except Exception as e:
         raise e
 
@@ -100,3 +103,10 @@ async def delete_expense(expense_id: int):
         return await repository.delete(Collections.expenses, expense_id)
     except Exception as e:
         raise e
+
+
+def update_expense_properties(existing_expense: Expense, new_expense: Expense):
+    existing_expense.date = new_expense.date or new_expense.date
+    existing_expense.amount = new_expense.amount or new_expense.amount
+    existing_expense.beneficiary = new_expense.beneficiary or new_expense.beneficiary
+    existing_expense.documentation = new_expense.documentation or new_expense.documentation

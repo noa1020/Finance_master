@@ -74,11 +74,14 @@ async def update_revenue(revenue_id: int, new_revenue: Revenue):
     """
     if new_revenue is None:
         raise ValueError("Revenue object is null")
-    if await get_revenue_by_id(new_revenue.id) is None:
+    existing_revenue = await get_revenue_by_id(new_revenue.id)
+    if existing_revenue is None:
         raise ValueError("Revenue not found")
+    existing_revenue = Revenue(**existing_revenue)
     try:
-        validation_service.is_valid_revenue(new_revenue)
-        return await repository.update(Collections.revenues, revenue_id, new_revenue.dict())
+        update_revenue_properties(existing_revenue,new_revenue)
+        validation_service.is_valid_revenue(existing_revenue)
+        return await repository.update(Collections.revenues, revenue_id, existing_revenue.dict())
     except Exception as e:
         raise e
 
@@ -100,3 +103,10 @@ async def delete_revenue(revenue_id: int):
         return await repository.delete(Collections.revenues, revenue_id)
     except Exception as e:
         raise e
+
+
+def update_revenue_properties(existing_revenue: Revenue, new_revenue: Revenue):
+    existing_revenue.date = new_revenue.date or existing_revenue.date
+    existing_revenue.amount = new_revenue.amount or existing_revenue.amount
+    existing_revenue.benefactor = new_revenue.benefactor or existing_revenue.benefactor
+    existing_revenue.documentation = new_revenue.documentation or existing_revenue.documentation
