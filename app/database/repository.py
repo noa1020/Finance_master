@@ -1,4 +1,4 @@
-from app.utils.db import my_db
+from app.database.db_connection import my_db
 import json
 from bson import json_util
 
