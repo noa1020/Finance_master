@@ -9,4 +9,4 @@ class User(BaseModel):
     email: str
     phone: str
     birth_date: datetime
-    balance: int
+    balance: float

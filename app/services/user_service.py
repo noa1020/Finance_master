@@ -106,6 +106,16 @@ async def delete_user(user_id: int):
 
 
 def update_user_properties(existing_user: User, new_user: User):
+    """
+    Updates the properties of an existing User object with values from a new User object.
+    Args:
+        existing_user (User): The existing User object to update.
+        new_user (User): The new User object with updated values.
+    Returns:
+        None
+    Raises:
+        TypeError: If either existing_user or new_user is not an instance of the Expense class.
+    """
     existing_user.user_name = new_user.user_name or existing_user.user_name
     existing_user.password = new_user.password or existing_user.password
     existing_user.email = new_user.email or existing_user.email

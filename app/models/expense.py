@@ -6,7 +6,7 @@ class Expense(BaseModel):
 
     expenseId: int
     userId: int
-    amount: str
+    amount: float
     date: datetime
     beneficiary: str
     documentation: str

@@ -1,7 +1,7 @@
 from app.database import repository
 from app.database.db_connection import Collections
 from app.models.revenue import Revenue
-from app.services import validation_service
+from app.services import validation_service, balance_service
 
 
 async def get_revenues():
@@ -34,6 +34,8 @@ async def get_revenue_by_id(revenue_id: int):
         if not revenue:
             raise ValueError(f"Revenue with ID {revenue_id} not found")
         return revenue
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
@@ -55,7 +57,10 @@ async def add_revenue(new_revenue: Revenue):
         raise ValueError("Revenue ID already exists")
     try:
         validation_service.is_valid_revenue(new_revenue)
+        await balance_service.change_balance(new_revenue.userId, new_revenue.amount)
         return await repository.add(Collections.revenues, new_revenue.dict())
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
@@ -79,9 +84,12 @@ async def update_revenue(revenue_id: int, new_revenue: Revenue):
         raise ValueError("Revenue not found")
     existing_revenue = Revenue(**existing_revenue)
     try:
-        update_revenue_properties(existing_revenue,new_revenue)
+        update_revenue_properties(existing_revenue, new_revenue)
         validation_service.is_valid_revenue(existing_revenue)
+        await balance_service.change_balance(new_revenue.userId, new_revenue.amount - existing_revenue.amount)
         return await repository.update(Collections.revenues, revenue_id, existing_revenue.dict())
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
@@ -97,15 +105,30 @@ async def delete_revenue(revenue_id: int):
         ValueError: If the revenue entry is not found.
         Exception: If there is an error during the deletion process.
     """
-    if await get_revenue_by_id(revenue_id) is None:
+    existing_revenue = await get_revenue_by_id(revenue_id)
+    if existing_revenue is None:
         raise ValueError("Revenue not found")
+    existing_revenue = Revenue(**existing_revenue)
     try:
+        await balance_service.change_balance(existing_revenue.userId, existing_revenue.amount * -1)
         return await repository.delete(Collections.revenues, revenue_id)
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
 
 def update_revenue_properties(existing_revenue: Revenue, new_revenue: Revenue):
+    """
+    Updates the properties of an existing Revenue object with values from a new Revenue object.
+    Args:
+        existing_revenue (Revenue): The existing Revenue object to update.
+        new_revenue (Revenue): The new Revenue object with updated values.
+    Returns:
+        None
+    Raises:
+        TypeError: If either existing_revenue or new_revenue is not an instance of the Revenue class.
+    """
     existing_revenue.date = new_revenue.date or existing_revenue.date
     existing_revenue.amount = new_revenue.amount or existing_revenue.amount
     existing_revenue.benefactor = new_revenue.benefactor or existing_revenue.benefactor
