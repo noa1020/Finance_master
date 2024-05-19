@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models.user import User
 from app.services import user_service
+
 user_router = APIRouter()
 
 
@@ -16,7 +17,7 @@ async def get_users():
     try:
         return await user_service.get_users()
     except Exception as e:
-        raise HTTPException(status_code=404, detail=e)
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @user_router.get('/{user_id}')
@@ -33,7 +34,7 @@ async def get_user_by_id(user_id: int):
     try:
         return await user_service.get_user_by_id(user_id)
     except Exception as e:
-        raise HTTPException(status_code=404, detail=e)
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @user_router.post('')
@@ -48,11 +49,11 @@ async def add_user(new_user: User):
         HTTPException: If an error occurs while adding the user.
     """
     try:
-        return user_service.add_user(new_user)
+        return await user_service.add_user(new_user)
     except ValueError as e:
-        return HTTPException(status_code=400, detail=e)
+        return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @user_router.put('/{user_id}')
@@ -70,9 +71,9 @@ async def update_user(user_id: int, new_user: User):
     try:
         return await user_service.update_user(user_id, new_user)
     except ValueError as e:
-        return HTTPException(status_code=400, detail=e)
+        return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @user_router.delete('/{user_id}')
@@ -89,6 +90,6 @@ async def delete_user(user_id: int):
     try:
         return await user_service.delete_user(user_id)
     except ValueError as e:
-        return HTTPException(status_code=400, detail=e)
+        return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))

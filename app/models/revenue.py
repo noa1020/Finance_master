@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class Revenue(BaseModel):
 
-    revenueId: int
+    id: int
     userId: int
     amount: float
     date: datetime

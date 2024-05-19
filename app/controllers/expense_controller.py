@@ -17,7 +17,7 @@ async def get_expenses():
     try:
         return await expense_service.get_expenses()
     except Exception as e:
-        raise HTTPException(status_code=404, detail=e)
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @expense_router.get('/{expense_id}')
@@ -34,7 +34,7 @@ async def get_expense_by_id(expense_id: int):
     try:
         return await expense_service.get_expense_by_id(expense_id)
     except Exception as e:
-        raise HTTPException(status_code=404, detail=e)
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @expense_router.post('')
@@ -49,11 +49,11 @@ async def add_expense(new_expense: Expense):
         HTTPException: If an error occurs while adding the expense entry.
     """
     try:
-        return expense_service.add_expense(new_expense)
+        return await expense_service.add_expense(new_expense)
     except ValueError as e:
-        return HTTPException(status_code=400, detail=e)
+        return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @expense_router.put('/{expense_id}')
@@ -71,9 +71,9 @@ async def update_expense(expense_id: int, new_expense: Expense):
     try:
         return await expense_service.update_expense(expense_id, new_expense)
     except ValueError as e:
-        return HTTPException(status_code=400, detail=e)
+        return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @expense_router.delete('/{expense_id}')
@@ -90,6 +90,6 @@ async def delete_expense(expense_id: int):
     try:
         return await expense_service.delete_expense(expense_id)
     except ValueError as e:
-        return HTTPException(status_code=400, detail=e)
+        return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))

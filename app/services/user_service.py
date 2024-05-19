@@ -30,10 +30,7 @@ async def get_user_by_id(user_id: int):
         Exception: If there is an error during the retrieval process.
     """
     try:
-        user = await repository.get_by_id(Collections.users, user_id)
-        if not user:
-            raise f"User with ID {user_id} not found"
-        return user
+        return await repository.get_by_id(Collections.users, user_id)
     except Exception as e:
         raise e
 
@@ -56,6 +53,8 @@ async def add_user(new_user: User):
     try:
         validation_service.is_valid_user(new_user)
         return await repository.add(Collections.users, new_user.dict())
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
@@ -82,6 +81,8 @@ async def update_user(user_id: int, new_user: User):
         update_user_properties(existing_user, new_user)
         validation_service.is_valid_user(existing_user)
         return await repository.update(Collections.users, user_id, existing_user.dict())
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
@@ -101,6 +102,8 @@ async def delete_user(user_id: int):
         raise ValueError("User not found")
     try:
         return await repository.delete(Collections.users, user_id)
+    except ValueError as ve:
+        raise ValueError(ve)
     except Exception as e:
         raise e
 
@@ -114,7 +117,7 @@ def update_user_properties(existing_user: User, new_user: User):
     Returns:
         None
     Raises:
-        TypeError: If either existing_user or new_user is not an instance of the Expense class.
+        TypeError: If either existing_user or new_user is not an instance of the User class.
     """
     existing_user.user_name = new_user.user_name or existing_user.user_name
     existing_user.password = new_user.password or existing_user.password

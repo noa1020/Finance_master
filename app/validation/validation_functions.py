@@ -30,9 +30,9 @@ def is_valid_email(email: str):
     return bool(re.match(email_pattern, email))
 
 
-def is_valid_israeli_id(id_user: int):
+def is_valid_israeli_id(id_user: int) -> bool:
     """
-    Validate if the string is a valid Israeli ID (Teudat Zehut).
+    Validate if the number is a valid Israeli ID (Teudat Zehut).
     Args:
         id_user (int): The Israeli ID to validate.
     Returns:
@@ -42,10 +42,15 @@ def is_valid_israeli_id(id_user: int):
     if len(id_str) != 9:
         return False
     id_digits = [int(digit) for digit in id_str]
-    total = sum(
-        digit * (1 if i % 2 == 0 else 2 if digit * 2 < 10 else digit * 2 - 9) for i, digit in enumerate(id_digits[:-1]))
-    last_digit = id_digits[-1]
-    return (total + last_digit) % 10 == 0
+
+    def double_and_sum(digit: int) -> int:
+        doubled = digit * 2
+        return doubled if doubled < 10 else doubled - 9
+
+    total = sum(id_digits[i] if i % 2 == 0 else double_and_sum(id_digits[i]) for i in range(8))
+    check_digit = id_digits[-1]
+
+    return (total + check_digit) % 10 == 0
 
 
 def is_valid_phone(phone_number: str):
@@ -65,7 +70,7 @@ def is_valid_phone(phone_number: str):
     return False
 
 
-def is_valid_birth_date(birth_date):
+def is_valid_birth_date(birth_date: datetime):
     """
     Validate if the birthdate is valid.
     Args:

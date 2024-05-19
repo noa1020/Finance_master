@@ -30,12 +30,7 @@ async def get_revenue_by_id(revenue_id: int):
         Exception: If there is an error during the retrieval process.
     """
     try:
-        revenue = await repository.get_by_id(Collections.revenues, revenue_id)
-        if not revenue:
-            raise ValueError(f"Revenue with ID {revenue_id} not found")
-        return revenue
-    except ValueError as ve:
-        raise ValueError(ve)
+        return await repository.get_by_id(Collections.revenues, revenue_id)
     except Exception as e:
         raise e
 
