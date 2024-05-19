@@ -60,25 +60,28 @@ async def add_user(new_user: User):
         raise e
 
 
-async def update_user(user_id: int, updated_data: User):
+async def update_user(user_id: int, new_user: User):
     """
     Update an existing user's data.
     Args:
         user_id (int): The ID of the user to update.
-        updated_data (User): The updated user object.
+        new_user (User): The updated user object.
     Returns:
         dict: The updated user document.
     Raises:
         ValueError: If the user object is null or the user is not found.
         Exception: If there is an error during the update process.
     """
-    if updated_data is None:
+    if new_user is None:
         raise ValueError("User object is null")
-    if await get_user_by_id(updated_data.id) is None:
+    existing_user = await get_user_by_id(new_user.id)
+    if existing_user is None:
         raise ValueError("User not found")
+    existing_user = User(**existing_user)
     try:
-        validation_service.is_valid_user(updated_data)
-        return await repository.update(Collections.users, user_id, updated_data.dict())
+        update_user_properties(existing_user, new_user)
+        validation_service.is_valid_user(existing_user)
+        return await repository.update(Collections.users, user_id, existing_user.dict())
     except Exception as e:
         raise e
 
@@ -100,3 +103,12 @@ async def delete_user(user_id: int):
         return await repository.delete(Collections.users, user_id)
     except Exception as e:
         raise e
+
+
+def update_user_properties(existing_user: User, new_user: User):
+    existing_user.user_name = new_user.user_name or existing_user.user_name
+    existing_user.password = new_user.password or existing_user.password
+    existing_user.email = new_user.email or existing_user.email
+    existing_user.phone = new_user.phone or existing_user.phone
+    existing_user.birth_date = new_user.birth_date or existing_user.birth_date
+    existing_user.balance = new_user.balance or existing_user.balance
