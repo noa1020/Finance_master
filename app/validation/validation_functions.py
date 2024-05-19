@@ -74,3 +74,18 @@ def is_valid_birth_date(birth_date):
         bool: True if the birthdate is valid, False otherwise.
     """
     return birth_date is not None and birth_date <= datetime.today()
+
+
+def is_valid_positive_number(value):
+    """
+    Check if a value is a valid positive number.
+    Args:
+        value: The value to check.
+    Returns:
+        bool: True if the value is a valid positive number, False otherwise.
+    """
+    try:
+        number = float(value)
+        return number > 0
+    except ValueError:
+        return False
