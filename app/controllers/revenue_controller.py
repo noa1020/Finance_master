@@ -38,18 +38,18 @@ async def get_revenue_by_id(revenue_id: int):
 
 
 @revenue_router.post('')
-async def add_revenue(revenue_data: Revenue):
+async def add_revenue(new_revenue: Revenue):
     """
     Adds a new revenue entry to the database.
     Args:
-        revenue_data (Revenue): An instance of the Revenue class representing the revenue entry to be added.
+        new_revenue (Revenue): An instance of the Revenue class representing the revenue entry to be added.
     Returns:
         dict: A dictionary representing the newly added revenue entry.
     Raises:
         HTTPException: If an error occurs while adding the revenue entry.
     """
     try:
-        return revenue_service.add_revenue(revenue_data)
+        return revenue_service.add_revenue(new_revenue)
     except ValueError as e:
         return HTTPException(status_code=400, detail=e)
     except Exception as e:
@@ -57,19 +57,19 @@ async def add_revenue(revenue_data: Revenue):
 
 
 @revenue_router.put('/{revenue_id}')
-async def update_revenue(revenue_id: int, updated_data: Revenue):
+async def update_revenue(revenue_id: int, new_revenue: Revenue):
     """
     Updates an existing revenue entry in the database.
     Args:
         revenue_id (int): The ID of the revenue entry to update.
-        updated_data (dict): A dictionary containing the updated revenue entry data.
+        new_revenue (Revenue): An instance of the Revenue class representing the revenue entry to be updated.
     Returns:
         dict: A dictionary representing the updated revenue entry.
     Raises:
         HTTPException: If the specified revenue ID is not found or if an error occurs.
     """
     try:
-        return await revenue_service.update_revenue(revenue_id, updated_data)
+        return await revenue_service.update_revenue(revenue_id, new_revenue)
     except ValueError as e:
         return HTTPException(status_code=400, detail=e)
     except Exception as e:

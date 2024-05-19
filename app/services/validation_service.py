@@ -14,6 +14,8 @@ def is_valid_user(new_user: User):
     """
     if not validation_functions.is_valid_string(new_user.user_name):
         raise ValueError("Invalid user name")
+    if not validation_functions.is_valid_string(new_user.password):
+        raise ValueError("Invalid user password")
     if not validation_functions.is_valid_email(new_user.email):
         raise ValueError("Invalid email")
     if not validation_functions.is_valid_israeli_id(new_user.id):

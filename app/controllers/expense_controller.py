@@ -38,18 +38,18 @@ async def get_expense_by_id(expense_id: int):
 
 
 @expense_router.post('')
-async def add_expense(expense_data: Expense):
+async def add_expense(new_expense: Expense):
     """
     Adds a new expense entry to the database.
     Args:
-        expense_data (Expense): An instance of the Expense class representing the expense entry to be added.
+        new_expense (Expense): An instance of the Expense class representing the expense entry to be added.
     Returns:
         dict: A dictionary representing the newly added expense entry.
     Raises:
         HTTPException: If an error occurs while adding the expense entry.
     """
     try:
-        return expense_service.add_expense(expense_data)
+        return expense_service.add_expense(new_expense)
     except ValueError as e:
         return HTTPException(status_code=400, detail=e)
     except Exception as e:
@@ -57,19 +57,19 @@ async def add_expense(expense_data: Expense):
 
 
 @expense_router.put('/{expense_id}')
-async def update_expense(expense_id: int, updated_data: Expense):
+async def update_expense(expense_id: int, new_expense: Expense):
     """
     Updates an existing expense entry in the database.
     Args:
         expense_id (int): The ID of the expense entry to update.
-        updated_data (dict): A dictionary containing the updated expense entry data.
+        new_expense (Expense): An instance of the Expense class representing the expense entry to be updated.
     Returns:
         dict: A dictionary representing the updated expense entry.
     Raises:
         HTTPException: If the specified expense ID is not found or if an error occurs.
     """
     try:
-        return await expense_service.update_expense(expense_id, updated_data)
+        return await expense_service.update_expense(expense_id, new_expense)
     except ValueError as e:
         return HTTPException(status_code=400, detail=e)
     except Exception as e:

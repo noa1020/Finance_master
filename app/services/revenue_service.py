@@ -60,25 +60,25 @@ async def add_revenue(new_revenue: Revenue):
         raise e
 
 
-async def update_revenue(revenue_id: int, updated_data: Revenue):
+async def update_revenue(revenue_id: int, new_revenue: Revenue):
     """
     Update an existing revenue entry's data.
     Args:
         revenue_id (int): The ID of the revenue entry to update.
-        updated_data (Revenue): The updated revenue object.
+        new_revenue (Revenue): The updated revenue object.
     Returns:
         dict: The updated revenue document.
     Raises:
         ValueError: If the revenue object is null or the revenue entry is not found.
         Exception: If there is an error during the update process.
     """
-    if updated_data is None:
+    if new_revenue is None:
         raise ValueError("Revenue object is null")
-    if await get_revenue_by_id(updated_data.id) is None:
+    if await get_revenue_by_id(new_revenue.id) is None:
         raise ValueError("Revenue not found")
     try:
-        validation_service.is_valid_revenue(updated_data)
-        return await repository.update(Collections.revenues, revenue_id, updated_data.dict())
+        validation_service.is_valid_revenue(new_revenue)
+        return await repository.update(Collections.revenues, revenue_id, new_revenue.dict())
     except Exception as e:
         raise e
 

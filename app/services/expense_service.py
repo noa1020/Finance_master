@@ -60,25 +60,25 @@ async def add_expense(new_expense: Expense):
         raise e
 
 
-async def update_expense(expense_id: int, updated_data: Expense):
+async def update_expense(expense_id: int, new_expense: Expense):
     """
     Update an existing expense entry's data.
     Args:
         expense_id (int): The ID of the expense entry to update.
-        updated_data (Expense): The updated expense object.
+        new_expense (Expense): The updated expense object.
     Returns:
         dict: The updated expense document.
     Raises:
         ValueError: If the expense object is null or the expense entry is not found.
         Exception: If there is an error during the update process.
     """
-    if updated_data is None:
+    if new_expense is None:
         raise ValueError("Expense object is null")
-    if await get_expense_by_id(updated_data.id) is None:
+    if await get_expense_by_id(new_expense.id) is None:
         raise ValueError("Expense not found")
     try:
-        validation_service.is_valid_expense(updated_data)
-        return await repository.update(Collections.expenses, expense_id, updated_data.dict())
+        validation_service.is_valid_expense(new_expense)
+        return await repository.update(Collections.expenses, expense_id, new_expense.dict())
     except Exception as e:
         raise e
 

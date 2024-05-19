@@ -37,18 +37,18 @@ async def get_user_by_id(user_id: int):
 
 
 @user_router.post('')
-async def add_user(user_data: User):
+async def add_user(new_user: User):
     """
     Adds a new user to the database.
     Args:
-        user_data (User): An instance of the User class representing the user to be added.
+        new_user (User): An instance of the User class representing the user to be added.
     Returns:
         dict: A dictionary representing the newly added user.
     Raises:
         HTTPException: If an error occurs while adding the user.
     """
     try:
-        return user_service.add_user(user_data)
+        return user_service.add_user(new_user)
     except ValueError as e:
         return HTTPException(status_code=400, detail=e)
     except Exception as e:
@@ -56,19 +56,19 @@ async def add_user(user_data: User):
 
 
 @user_router.put('/{user_id}')
-async def update_user(user_id: int, updated_data: User):
+async def update_user(user_id: int, new_user: User):
     """
     Updates an existing user in the database.
     Args:
         user_id (int): The ID of the user to update.
-        updated_data (dict): A dictionary containing the updated user data.
+        new_user (User): An instance of the User class representing the user to be updated.
     Returns:
         dict: A dictionary representing the updated user.
     Raises:
         HTTPException: If the specified user ID is not found or if an error occurs.
     """
     try:
-        return await user_service.update_user(user_id, updated_data)
+        return await user_service.update_user(user_id, new_user)
     except ValueError as e:
         return HTTPException(status_code=400, detail=e)
     except Exception as e:
