@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.models.user import User
 from app.services import user_service
+import json
+from bson import json_util
 
 user_router = APIRouter()
 
@@ -15,7 +17,8 @@ async def get_users():
         HTTPException: If an error occurs while fetching users from the database.
     """
     try:
-        return await user_service.get_users()
+        users = await user_service.get_users()
+        return json.loads(json_util.dumps(users))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -32,7 +35,8 @@ async def get_user_by_id(user_id: int):
         HTTPException: If the specified user ID is not found or if an error occurs.
     """
     try:
-        return await user_service.get_user_by_id(user_id)
+        user = await user_service.get_user_by_id(user_id)
+        return json.loads(json_util.dumps(user))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -88,7 +92,8 @@ async def delete_user(user_id: int):
         HTTPException: If the specified user ID is not found or if an error occurs.
     """
     try:
-        return await user_service.delete_user(user_id)
+        deleted_user = await user_service.delete_user(user_id)
+        return json.loads(json_util.dumps(deleted_user))
     except ValueError as e:
         return HTTPException(status_code=400, detail=str(e))
     except Exception as e:

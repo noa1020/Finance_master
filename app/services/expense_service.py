@@ -52,7 +52,7 @@ async def add_expense(new_expense: Expense):
         raise ValueError("Expense ID already exists")
     try:
         validation_service.is_valid_expense(new_expense)
-        await balance_service.change_balance(new_expense.userId, new_expense.amount)
+        await balance_service.change_balance(new_expense.userId, new_expense.amount * -1)
         return await repository.add(Collections.expenses, new_expense.dict())
     except ValueError as ve:
         raise ValueError(ve)
@@ -81,7 +81,7 @@ async def update_expense(expense_id: int, new_expense: Expense):
     try:
         update_expense_properties(existing_expense, new_expense)
         validation_service.is_valid_expense(existing_expense)
-        await balance_service.change_balance(new_expense.userId, new_expense.amount - existing_expense.amount)
+        await balance_service.change_balance(new_expense.userId, new_expense.amount + existing_expense.amount)
         return await repository.update(Collections.expenses, expense_id, existing_expense.dict())
     except ValueError as ve:
         raise ValueError(ve)

@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.models.expense import Expense
 from app.services import expense_service
+import json
+from bson import json_util
 
 expense_router = APIRouter()
 
@@ -15,7 +17,8 @@ async def get_expenses():
         HTTPException: If an error occurs while fetching expenses from the database.
     """
     try:
-        return await expense_service.get_expenses()
+        expenses = await expense_service.get_expenses()
+        return json.loads(json_util.dumps(expenses))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -32,7 +35,8 @@ async def get_expense_by_id(expense_id: int):
         HTTPException: If the specified expense ID is not found or if an error occurs.
     """
     try:
-        return await expense_service.get_expense_by_id(expense_id)
+        expense = await expense_service.get_expense_by_id(expense_id)
+        return json.loads(json_util.dumps(expense))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -88,7 +92,8 @@ async def delete_expense(expense_id: int):
         HTTPException: If the specified expense ID is not found or if an error occurs.
     """
     try:
-        return await expense_service.delete_expense(expense_id)
+        deleted_expense = await expense_service.delete_expense(expense_id)
+        return  json.loads(json_util.dumps(deleted_expense))
     except ValueError as e:
         return HTTPException(status_code=400, detail=str(e))
     except Exception as e:

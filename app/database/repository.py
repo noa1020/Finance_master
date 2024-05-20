@@ -1,6 +1,4 @@
 from app.database.db_connection import my_db
-import json
-from bson import json_util
 
 
 async def get_all(collection):
@@ -14,7 +12,7 @@ async def get_all(collection):
     """
     collection_name = collection.name
     try:
-        return json.loads(json_util.dumps(list(my_db[collection_name].find({}))))
+        return list(my_db[collection_name].find({}))
     except Exception as e:
         raise RuntimeError(f"Error fetching data from collection {collection_name}: {e}")
 
@@ -31,7 +29,7 @@ async def get_by_id(collection, document_id):
     """
     collection_name = collection.name
     try:
-        return json.loads(json_util.dumps(my_db[collection_name].find_one({"id": document_id})))
+        return my_db[collection_name].find_one({"id": document_id})
     except Exception as e:
         raise RuntimeError(f"Error fetching data from collection {collection_name}: {e}")
 
@@ -90,6 +88,6 @@ async def delete(collection, document_id):
         deleted_document = my_db[collection_name].find_one_and_delete({"id": document_id})
         if not deleted_document:
             raise ValueError(f"No document with ID {document_id} found in collection {collection_name}")
-        return json.loads(json_util.dumps(deleted_document))
+        return deleted_document
     except Exception as e:
         raise RuntimeError(f"Error deleting document from collection {collection_name}: {e}")

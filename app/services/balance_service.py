@@ -15,6 +15,8 @@ async def change_balance(user_id: int, difference: float):
     """
     try:
         existing_user = await user_service.get_user_by_id(user_id)
+        if existing_user is None:
+            raise ValueError("User not found")
         new_user = User(**existing_user)
         new_user.balance += difference
         await user_service.update_user(user_id, new_user)

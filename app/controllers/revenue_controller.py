@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.models.revenue import Revenue
 from app.services import revenue_service
+import json
+from bson import json_util
 
 revenue_router = APIRouter()
 
@@ -15,7 +17,8 @@ async def get_revenues():
         HTTPException: If an error occurs while fetching revenues from the database.
     """
     try:
-        return await revenue_service.get_revenues()
+        revenues = await revenue_service.get_revenues()
+        return json.loads(json_util.dumps(revenues))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -32,7 +35,8 @@ async def get_revenue_by_id(revenue_id: int):
         HTTPException: If the specified revenue ID is not found or if an error occurs.
     """
     try:
-        return await revenue_service.get_revenue_by_id(revenue_id)
+        revenue = await revenue_service.get_revenue_by_id(revenue_id)
+        return json.loads(json_util.dumps(revenue))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -88,7 +92,8 @@ async def delete_revenue(revenue_id: int):
         HTTPException: If the specified revenue ID is not found or if an error occurs.
     """
     try:
-        return await revenue_service.delete_revenue(revenue_id)
+        deleted_revenue = await revenue_service.delete_revenue(revenue_id)
+        return json.loads(json_util.dumps(deleted_revenue))
     except ValueError as e:
         return HTTPException(status_code=400, detail=str(e))
     except Exception as e:
