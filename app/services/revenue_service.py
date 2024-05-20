@@ -1,19 +1,25 @@
 from app.database import repository
 from app.database.db_connection import Collections
 from app.models.revenue import Revenue
-from app.services import validation_service, balance_service
+from app.services import validation_service, balance_service, user_service
 
 
-async def get_revenues():
+async def get_revenues(user_id: int):
     """
-    Retrieve all revenues from the database.
+    Retrieve all revenues from the database for a specific user.
+    Args:
+        user_id (str): The ID of the user to retrieve revenues for.
     Returns:
-        list: A list of revenue documents from the database.
+        list: A list of revenue documents from the database for the specified user.
     Raises:
         Exception: If there is an error during the retrieval process.
     """
+    if await user_service.get_user_by_id(user_id) is None:
+        raise ValueError("user not found")
     try:
-        return await repository.get_all(Collections.revenues)
+        revenues = await repository.get_all(Collections.revenues)
+        filtered_revenues = [revenue for revenue in revenues if revenue.get('user_id') == user_id]
+        return filtered_revenues
     except Exception as e:
         raise e
 
@@ -52,7 +58,7 @@ async def add_revenue(new_revenue: Revenue):
         raise ValueError("Revenue ID already exists")
     try:
         validation_service.is_valid_revenue(new_revenue)
-        await balance_service.change_balance(new_revenue.userId, new_revenue.amount)
+        await balance_service.change_balance(new_revenue.user_id, new_revenue.amount)
         return await repository.add(Collections.revenues, new_revenue.dict())
     except ValueError as ve:
         raise ValueError(ve)
@@ -81,7 +87,7 @@ async def update_revenue(revenue_id: int, new_revenue: Revenue):
     try:
         update_revenue_properties(existing_revenue, new_revenue)
         validation_service.is_valid_revenue(existing_revenue)
-        await balance_service.change_balance(new_revenue.userId, new_revenue.amount - existing_revenue.amount)
+        await balance_service.change_balance(new_revenue.user_id, new_revenue.amount - existing_revenue.amount)
         return await repository.update(Collections.revenues, revenue_id, existing_revenue.dict())
     except ValueError as ve:
         raise ValueError(ve)
@@ -105,7 +111,7 @@ async def delete_revenue(revenue_id: int):
         raise ValueError("Revenue not found")
     existing_revenue = Revenue(**existing_revenue)
     try:
-        await balance_service.change_balance(existing_revenue.userId, existing_revenue.amount * -1)
+        await balance_service.change_balance(existing_revenue.user_id, existing_revenue.amount * -1)
         return await repository.delete(Collections.revenues, revenue_id)
     except ValueError as ve:
         raise ValueError(ve)

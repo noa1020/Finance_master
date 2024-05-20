@@ -8,7 +8,7 @@ expense_router = APIRouter()
 
 
 @expense_router.get('')
-async def get_expenses():
+async def get_expenses(user_id: int):
     """
     Retrieves details about all expenses from the database.
     Returns:
@@ -17,7 +17,7 @@ async def get_expenses():
         HTTPException: If an error occurs while fetching expenses from the database.
     """
     try:
-        expenses = await expense_service.get_expenses()
+        expenses = await expense_service.get_expenses(user_id)
         return json.loads(json_util.dumps(expenses))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -93,7 +93,7 @@ async def delete_expense(expense_id: int):
     """
     try:
         deleted_expense = await expense_service.delete_expense(expense_id)
-        return  json.loads(json_util.dumps(deleted_expense))
+        return json.loads(json_util.dumps(deleted_expense))
     except ValueError as e:
         return HTTPException(status_code=400, detail=str(e))
     except Exception as e:

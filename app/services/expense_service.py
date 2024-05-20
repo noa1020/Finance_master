@@ -1,19 +1,25 @@
 from app.database import repository
 from app.database.db_connection import Collections
 from app.models.expense import Expense
-from app.services import validation_service, balance_service
+from app.services import validation_service, balance_service, user_service
 
 
-async def get_expenses():
+async def get_expenses(user_id: int):
     """
-    Retrieve all expenses from the database.
+    Retrieve all expenses from the database for a specific user.
+    Args:
+        user_id (str): The ID of the user to retrieve expenses for.
     Returns:
-        list: A list of expense documents from the database.
+        list: A list of expense documents from the database for the specified user.
     Raises:
         Exception: If there is an error during the retrieval process.
     """
+    if await user_service.get_user_by_id(user_id) is None:
+        raise ValueError("user not found")
     try:
-        return await repository.get_all(Collections.expenses)
+        expenses = await repository.get_all(Collections.expenses)
+        filtered_expenses = [expense for expense in expenses if expense.get('user_id') == user_id]
+        return filtered_expenses
     except Exception as e:
         raise e
 
@@ -52,7 +58,7 @@ async def add_expense(new_expense: Expense):
         raise ValueError("Expense ID already exists")
     try:
         validation_service.is_valid_expense(new_expense)
-        await balance_service.change_balance(new_expense.userId, new_expense.amount * -1)
+        await balance_service.change_balance(new_expense.user_id, new_expense.amount * -1)
         return await repository.add(Collections.expenses, new_expense.dict())
     except ValueError as ve:
         raise ValueError(ve)
@@ -105,7 +111,7 @@ async def delete_expense(expense_id: int):
         raise ValueError("Expense not found")
     existing_expense = Expense(**existing_expense)
     try:
-        await balance_service.change_balance(existing_expense.userId, existing_expense.amount * -1)
+        await balance_service.change_balance(existing_expense.user_id, existing_expense.amount * -1)
         return await repository.delete(Collections.expenses, expense_id)
     except ValueError as ve:
         raise ValueError(ve)

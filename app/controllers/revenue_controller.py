@@ -8,7 +8,7 @@ revenue_router = APIRouter()
 
 
 @revenue_router.get('')
-async def get_revenues():
+async def get_revenues(user_id: int):
     """
     Retrieves details about all revenues from the database.
     Returns:
@@ -17,7 +17,7 @@ async def get_revenues():
         HTTPException: If an error occurs while fetching revenues from the database.
     """
     try:
-        revenues = await revenue_service.get_revenues()
+        revenues = await revenue_service.get_revenues(user_id)
         return json.loads(json_util.dumps(revenues))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
