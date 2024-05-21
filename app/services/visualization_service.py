@@ -44,13 +44,10 @@ async def expense_and_revenue_by_date(user_id: int):
 async def balance_over_time(user_id: int):
     """
     Generate a graph showing the balance over time for a specific user.
-
     Args:
         user_id (int): The ID of the user.
-
     Raises:
         Exception: If there is an error during the process.
-
     Returns:
         None
     """
@@ -58,7 +55,6 @@ async def balance_over_time(user_id: int):
         user = await user_service.get_user_by_id(user_id)
         if not user:
             raise ValueError("User not found")
-
         expenses = await expense_service.get_expenses(user_id)
         revenues = await revenue_service.get_revenues(user_id)
         dates = sorted(list(set([expense['date'] for expense in expenses] + [revenue['date'] for revenue in revenues])))
@@ -137,24 +133,18 @@ async def monthly_summary(user_id: int):
     try:
         expenses = await expense_service.get_expenses(user_id)
         revenues = await revenue_service.get_revenues(user_id)
-
         expense_df = pd.DataFrame(expenses)
         revenue_df = pd.DataFrame(revenues)
-
         expense_df['date'] = pd.to_datetime(expense_df['date'])
         revenue_df['date'] = pd.to_datetime(revenue_df['date'])
-
         expense_df['month'] = expense_df['date'].dt.to_period('M')
         revenue_df['month'] = revenue_df['date'].dt.to_period('M')
-
         monthly_expenses = expense_df.groupby('month')['amount'].sum()
         monthly_revenues = revenue_df.groupby('month')['amount'].sum()
-
         df = pd.DataFrame({
             'Expenses': monthly_expenses,
             'Revenues': monthly_revenues
         }).fillna(0)
-
         df.plot(kind='bar', figsize=(10, 6))
         plt.title(f'Monthly Summary for User ID = {user_id}')
         plt.xlabel('Month')

@@ -59,6 +59,32 @@ async def add_user(new_user: User):
         raise e
 
 
+async def login(email, password):
+    """
+    Authenticate a user based on their email and password.
+    Args:
+        email (str): The email address of the user.
+        password (str): The password of the user.
+    Returns:
+        dict: The authenticated user document.
+    Raises:
+        ValueError: If email or password is not provided, or if the user is not found, or if the password is incorrect.
+        Exception: If there is an error during the authentication process.
+    """
+    if email is None or password is None:
+        raise ValueError("Please enter all values")
+    try:
+        users = await get_users()
+        user = next((u for u in users if u['email'] == email), None)
+        if user is None:
+            raise ValueError("User not found")
+        if not password == user['password']:
+            raise ValueError("Invalid password")
+        return user
+    except Exception as e:
+        raise ValueError(e)
+
+
 async def update_user(user_id: int, new_user: User):
     """
     Update an existing user's data.
