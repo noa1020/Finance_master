@@ -1,3 +1,5 @@
+import asyncio
+
 from app.database import repository
 from app.database.db_connection import Collections
 from app.models.expense import Expense
@@ -20,24 +22,28 @@ async def get_expenses(user_id: int):
         expenses = await repository.get_all(Collections.expenses)
         filtered_expenses = [expense for expense in expenses if expense.get('user_id') == user_id]
         return filtered_expenses
-    except Exception as e:
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
-async def get_expense_by_id(expense_id: int):
+async def get_expense_by_id(expense_id: int, user_id: int):
     """
     Retrieve an expense entry by its ID.
     Args:
         expense_id (int): The ID of the expense entry to retrieve.
+        user_id (int): The ID of the user requesting the expense.
     Returns:
         dict: The expense document if found.
     Raises:
-        ValueError: If the expense entry is not found.
+        ValueError: If the expense entry is not found or if the user_id does not match.
         Exception: If there is an error during the retrieval process.
     """
     try:
-        return await repository.get_by_id(Collections.expenses, expense_id)
-    except Exception as e:
+        expense = await repository.get_by_id(Collections.expenses, expense_id)
+        if user_id != expense['user_id']:
+            raise ValueError("You are trying to access an expense of another user.")
+        return expense
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
@@ -54,15 +60,17 @@ async def add_expense(new_expense: Expense):
     """
     if new_expense is None:
         raise ValueError("Expense object is null")
-    if await get_expense_by_id(new_expense.id) is not None:
-        raise ValueError("Expense ID already exists")
+    expenses = await repository.get_all(Collections.expenses)
+    max_item = max(expenses, key=lambda item: item['id'])
+    new_expense.id = max_item['id'] + 1
     try:
         validation_service.is_valid_expense(new_expense)
-        await balance_service.change_balance(new_expense.user_id, new_expense.amount * -1)
-        return await repository.add(Collections.expenses, new_expense.dict())
-    except ValueError as ve:
-        raise ValueError(ve)
-    except Exception as e:
+        results = await asyncio.gather(
+            balance_service.change_balance(new_expense.user_id, -new_expense.amount),
+            repository.add(Collections.expenses, new_expense.dict())
+        )
+        return results[1]
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
@@ -80,42 +88,46 @@ async def update_expense(expense_id: int, new_expense: Expense):
     """
     if new_expense is None:
         raise ValueError("Expense object is null")
-    existing_expense = await get_expense_by_id(new_expense.id)
+    existing_expense = await get_expense_by_id(new_expense.id, new_expense.user_id)
     if existing_expense is None:
         raise ValueError("Expense not found")
     existing_expense = Expense(**existing_expense)
+    balance = existing_expense.amount - new_expense.amount
     try:
         update_expense_properties(existing_expense, new_expense)
         validation_service.is_valid_expense(existing_expense)
-        await balance_service.change_balance(new_expense.userId, new_expense.amount + existing_expense.amount)
-        return await repository.update(Collections.expenses, expense_id, existing_expense.dict())
-    except ValueError as ve:
-        raise ValueError(ve)
-    except Exception as e:
+        results = await asyncio.gather(
+            balance_service.change_balance(new_expense.user_id, balance),
+            repository.update(Collections.expenses, expense_id, existing_expense.dict())
+        )
+        return results[1]
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
-async def delete_expense(expense_id: int):
+async def delete_expense(expense_id: int, user_id: int):
     """
     Delete an expense entry from the database.
     Args:
         expense_id (int): The ID of the expense entry to delete.
+        user_id (int): The ID of the user requesting the deletion.
     Returns:
         dict: The deleted expense document.
     Raises:
-        ValueError: If the expense entry is not found.
+        ValueError: If the expense entry is not found or belongs to another user.
         Exception: If there is an error during the deletion process.
     """
-    existing_expense = await get_expense_by_id(expense_id)
-    if existing_expense is None:
-        raise ValueError("Expense not found")
-    existing_expense = Expense(**existing_expense)
     try:
-        await balance_service.change_balance(existing_expense.user_id, existing_expense.amount * -1)
-        return await repository.delete(Collections.expenses, expense_id)
-    except ValueError as ve:
-        raise ValueError(ve)
-    except Exception as e:
+        existing_expense = await get_expense_by_id(expense_id, user_id)
+        if existing_expense is None:
+            raise ValueError("Expense not found")
+        existing_expense = Expense(**existing_expense)
+        results = await asyncio.gather(
+            balance_service.change_balance(existing_expense.user_id, existing_expense.amount),
+            repository.delete(Collections.expenses, expense_id)
+        )
+        return results[1]
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
