@@ -19,26 +19,35 @@ async def get_expenses(user_id: int):
     try:
         expenses = await expense_service.get_expenses(user_id)
         return json.loads(json_util.dumps(expenses))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @expense_router.get('/{expense_id}')
-async def get_expense_by_id(expense_id: int):
+async def get_expense_by_id(expense_id: int, user_id: int):
     """
     Retrieves details about a specific expense entry by its ID from the database.
     Args:
         expense_id (int): The ID of the expense entry to retrieve.
+        user_id (int): The ID of the user requesting the expense.
     Returns:
         dict: A dictionary representing the expense entry.
     Raises:
         HTTPException: If the specified expense ID is not found or if an error occurs.
     """
     try:
-        expense = await expense_service.get_expense_by_id(expense_id)
+        expense = await expense_service.get_expense_by_id(expense_id, user_id)
         return json.loads(json_util.dumps(expense))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @expense_router.post('')
@@ -54,8 +63,10 @@ async def add_expense(new_expense: Expense):
     """
     try:
         return await expense_service.add_expense(new_expense)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -74,27 +85,32 @@ async def update_expense(expense_id: int, new_expense: Expense):
     """
     try:
         return await expense_service.update_expense(expense_id, new_expense)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @expense_router.delete('/{expense_id}')
-async def delete_expense(expense_id: int):
+async def delete_expense(expense_id: int, user_id: int):
     """
     Deletes an existing expense entry from the database.
     Args:
         expense_id (int): The ID of the expense entry to delete.
+        user_id (int): The ID of the user requesting the deletion.
     Returns:
         dict: A dictionary representing the deleted expense entry.
     Raises:
         HTTPException: If the specified expense ID is not found or if an error occurs.
     """
     try:
-        deleted_expense = await expense_service.delete_expense(expense_id)
+        deleted_expense = await expense_service.delete_expense(expense_id, user_id)
         return json.loads(json_util.dumps(deleted_expense))
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
