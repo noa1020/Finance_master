@@ -19,26 +19,35 @@ async def get_revenues(user_id: int):
     try:
         revenues = await revenue_service.get_revenues(user_id)
         return json.loads(json_util.dumps(revenues))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @revenue_router.get('/{revenue_id}')
-async def get_revenue_by_id(revenue_id: int):
+async def get_revenue_by_id(revenue_id: int, user_id: int):
     """
     Retrieves details about a specific revenue entry by its ID from the database.
     Args:
         revenue_id (int): The ID of the revenue entry to retrieve.
+        user_id (int): The ID of the user requesting the revenue entry.
     Returns:
         dict: A dictionary representing the revenue entry.
     Raises:
         HTTPException: If the specified revenue ID is not found or if an error occurs.
     """
     try:
-        revenue = await revenue_service.get_revenue_by_id(revenue_id)
+        revenue = await revenue_service.get_revenue_by_id(revenue_id, user_id)
         return json.loads(json_util.dumps(revenue))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @revenue_router.post('')
@@ -54,8 +63,10 @@ async def add_revenue(new_revenue: Revenue):
     """
     try:
         return await revenue_service.add_revenue(new_revenue)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -74,27 +85,32 @@ async def update_revenue(revenue_id: int, new_revenue: Revenue):
     """
     try:
         return await revenue_service.update_revenue(revenue_id, new_revenue)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @revenue_router.delete('/{revenue_id}')
-async def delete_revenue(revenue_id: int):
+async def delete_revenue(revenue_id: int, user_id: int):
     """
     Deletes an existing revenue entry from the database.
     Args:
         revenue_id (int): The ID of the revenue entry to delete.
+        user_id (int): The ID of the user requesting the deletion.
     Returns:
         dict: A dictionary representing the deleted revenue entry.
     Raises:
         HTTPException: If the specified revenue ID is not found or if an error occurs.
     """
     try:
-        deleted_revenue = await revenue_service.delete_revenue(revenue_id)
+        deleted_revenue = await revenue_service.delete_revenue(revenue_id, user_id)
         return json.loads(json_util.dumps(deleted_revenue))
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
