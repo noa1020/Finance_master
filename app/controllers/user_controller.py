@@ -19,8 +19,12 @@ async def get_users():
     try:
         users = await user_service.get_users()
         return json.loads(json_util.dumps(users))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @user_router.get('/{user_id}')
@@ -37,8 +41,12 @@ async def get_user_by_id(user_id: int):
     try:
         user = await user_service.get_user_by_id(user_id)
         return json.loads(json_util.dumps(user))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @user_router.post('')
@@ -54,8 +62,10 @@ async def add_user(new_user: User):
     """
     try:
         return await user_service.add_user(new_user)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -75,8 +85,10 @@ async def login(email: str, password: str):
     try:
         user = await user_service.login(email, password)
         return json.loads(json_util.dumps(user))
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -95,8 +107,10 @@ async def update_user(user_id: int, new_user: User):
     """
     try:
         return await user_service.update_user(user_id, new_user)
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -115,7 +129,9 @@ async def delete_user(user_id: int):
     try:
         deleted_user = await user_service.delete_user(user_id)
         return json.loads(json_util.dumps(deleted_user))
-    except ValueError as e:
-        return HTTPException(status_code=400, detail=str(e))
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

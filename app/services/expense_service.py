@@ -1,5 +1,4 @@
 import asyncio
-
 from app.database import repository
 from app.database.db_connection import Collections
 from app.models.expense import Expense
