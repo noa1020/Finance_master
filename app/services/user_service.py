@@ -1,7 +1,8 @@
+import asyncio
 from app.database import repository
 from app.database.db_connection import Collections
 from app.models.user import User
-from app.services import validation_service
+from app.services import validation_service, revenue_service, expense_service
 
 
 async def get_users():
@@ -14,7 +15,7 @@ async def get_users():
     """
     try:
         return await repository.get_all(Collections.users)
-    except Exception as e:
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
@@ -31,7 +32,7 @@ async def get_user_by_id(user_id: int):
     """
     try:
         return await repository.get_by_id(Collections.users, user_id)
-    except Exception as e:
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
@@ -53,9 +54,7 @@ async def add_user(new_user: User):
     try:
         validation_service.is_valid_user(new_user)
         return await repository.add(Collections.users, new_user.dict())
-    except ValueError as ve:
-        raise ValueError(ve)
-    except Exception as e:
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
@@ -81,8 +80,8 @@ async def login(email, password):
         if not password == user['password']:
             raise ValueError("Invalid password")
         return user
-    except Exception as e:
-        raise ValueError(e)
+    except (ValueError, RuntimeError, Exception) as e:
+        raise e
 
 
 async def update_user(user_id: int, new_user: User):
@@ -107,9 +106,7 @@ async def update_user(user_id: int, new_user: User):
         update_user_properties(existing_user, new_user)
         validation_service.is_valid_user(existing_user)
         return await repository.update(Collections.users, user_id, existing_user.dict())
-    except ValueError as ve:
-        raise ValueError(ve)
-    except Exception as e:
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
@@ -124,13 +121,29 @@ async def delete_user(user_id: int):
         ValueError: If the user is not found.
         Exception: If there is an error during the deletion process.
     """
-    if await get_user_by_id(user_id) is None:
+    existing_user = await get_user_by_id(user_id)
+    if existing_user is None:
         raise ValueError("User not found")
     try:
-        return await repository.delete(Collections.users, user_id)
-    except ValueError as ve:
-        raise ValueError(ve)
-    except Exception as e:
+        # Get user's revenues and expenses concurrently
+        revenues_task = revenue_service.get_revenues(user_id)
+        expenses_task = expense_service.get_expenses(user_id)
+
+        # Await both tasks concurrently
+        revenues, expenses = await asyncio.gather(revenues_task, expenses_task)
+
+        # Delete user's revenues and expenses concurrently
+        delete_revenues_task = [revenue_service.delete_revenue(revenue['id'], user_id) for revenue in revenues]
+        delete_expenses_task = [expense_service.delete_expense(expense['id'], user_id) for expense in expenses]
+
+        # Await deletion of revenues and expenses concurrently
+        await asyncio.gather(*delete_revenues_task, *delete_expenses_task)
+
+        # Finally, delete the user
+        deleted_user = await repository.delete(Collections.users, user_id)
+        deleted_user['balance'] = existing_user['balance']
+        return deleted_user
+    except (ValueError, RuntimeError, Exception) as e:
         raise e
 
 
