@@ -65,10 +65,15 @@ async def update(collection, document_id, updated_data):
     """
     collection_name = collection.name
     try:
+        existing_document = my_db[collection_name].find_one(updated_data)
+        if existing_document:
+            return updated_data
         result = my_db[collection_name].update_one({"id": document_id}, {"$set": updated_data})
         if result.modified_count == 0:
             raise ValueError(f"No document with ID {document_id} found in collection {collection_name}")
         return updated_data
+    except ValueError as e:
+        raise ValueError(e)
     except Exception as e:
         raise RuntimeError(f"Error updating document in collection {collection_name}: {e}")
 
@@ -89,5 +94,7 @@ async def delete(collection, document_id):
         if not deleted_document:
             raise ValueError(f"No document with ID {document_id} found in collection {collection_name}")
         return deleted_document
+    except ValueError as e:
+        raise ValueError(e)
     except Exception as e:
         raise RuntimeError(f"Error deleting document from collection {collection_name}: {e}")
