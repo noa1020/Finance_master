@@ -3,12 +3,12 @@ from app.services import expense_service, revenue_service, user_service
 import pandas as pd
 
 
-async def expense_and_revenue_by_date(user_id: int):
+async def expense_and_revenue_by_date(user_id: str):
     """
     Generate a graph showing expenses and revenues over time for a specific user.
 
     Args:
-        user_id (int): The ID of the user.
+        user_id (str): The ID of the user.
 
     Raises:
         Exception: If there is an error during the process.
@@ -41,11 +41,11 @@ async def expense_and_revenue_by_date(user_id: int):
         raise e
 
 
-async def balance_over_time(user_id: int):
+async def balance_over_time(user_id: str):
     """
     Generate a graph showing the balance over time for a specific user.
     Args:
-        user_id (int): The ID of the user.
+        user_id (str): The ID of the user.
     Raises:
         Exception: If there is an error during the process.
     Returns:
@@ -83,12 +83,12 @@ async def balance_over_time(user_id: int):
         raise e
 
 
-async def expense_distribution_by_category(user_id: int):
+async def expense_distribution_by_category(user_id: str):
     """
     Generate a pie chart showing the distribution of expenses by category for a specific user.
 
     Args:
-        user_id (int): The ID of the user.
+        user_id (str): The ID of the user.
 
     Raises:
         Exception: If there is an error during the process.
@@ -120,11 +120,11 @@ async def expense_distribution_by_category(user_id: int):
         raise e
 
 
-async def monthly_summary(user_id: int):
+async def monthly_summary(user_id: str):
     """
     Generate a bar chart showing the monthly summary of revenues and expenses for a specific user.
     Args:
-        user_id (int): The ID of the user.
+        user_id (str): The ID of the user.
     Raises:
         Exception: If there is an error during the process.
     Returns:

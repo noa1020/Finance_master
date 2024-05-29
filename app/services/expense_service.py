@@ -5,7 +5,7 @@ from app.models.expense import Expense
 from app.services import validation_service, balance_service, user_service
 
 
-async def get_expenses(user_id: int):
+async def get_expenses(user_id: str):
     """
     Retrieve all expenses from the database for a specific user.
     Args:
@@ -25,12 +25,12 @@ async def get_expenses(user_id: int):
         raise e
 
 
-async def get_expense_by_id(expense_id: int, user_id: int):
+async def get_expense_by_id(expense_id: int, user_id: str):
     """
     Retrieve an expense entry by its ID.
     Args:
         expense_id (int): The ID of the expense entry to retrieve.
-        user_id (int): The ID of the user requesting the expense.
+        user_id (str): The ID of the user requesting the expense.
     Returns:
         dict: The expense document if found.
     Raises:
@@ -104,12 +104,12 @@ async def update_expense(expense_id: int, new_expense: Expense):
         raise e
 
 
-async def delete_expense(expense_id: int, user_id: int):
+async def delete_expense(expense_id: int, user_id: str):
     """
     Delete an expense entry from the database.
     Args:
         expense_id (int): The ID of the expense entry to delete.
-        user_id (int): The ID of the user requesting the deletion.
+        user_id (str): The ID of the user requesting the deletion.
     Returns:
         dict: The deleted expense document.
     Raises:

@@ -19,11 +19,11 @@ async def get_users():
         raise e
 
 
-async def get_user_by_id(user_id: int):
+async def get_user_by_id(user_id: str):
     """
     Retrieve a user by their ID.
     Args:
-        user_id (int): The ID of the user to retrieve.
+        user_id (str): The ID of the user to retrieve.
     Returns:
         dict: The user document if found.
     Raises:
@@ -84,11 +84,11 @@ async def login(email, password):
         raise e
 
 
-async def update_user(user_id: int, new_user: User):
+async def update_user(user_id: str, new_user: User):
     """
     Update an existing user's data.
     Args:
-        user_id (int): The ID of the user to update.
+        user_id (str): The ID of the user to update.
         new_user (User): The updated user object.
     Returns:
         dict: The updated user document.
@@ -110,11 +110,11 @@ async def update_user(user_id: int, new_user: User):
         raise e
 
 
-async def delete_user(user_id: int):
+async def delete_user(user_id: str):
     """
     Delete a user from the database.
     Args:
-        user_id (int): The ID of the user to delete.
+        user_id (str): The ID of the user to delete.
     Returns:
         dict: The deleted user document.
     Raises:

@@ -8,7 +8,7 @@ revenue_router = APIRouter()
 
 
 @revenue_router.get('')
-async def get_revenues(user_id: int):
+async def get_revenues(user_id: str):
     """
     Retrieves details about all revenues from the database.
     Returns:
@@ -28,12 +28,12 @@ async def get_revenues(user_id: int):
 
 
 @revenue_router.get('/{revenue_id}')
-async def get_revenue_by_id(revenue_id: int, user_id: int):
+async def get_revenue_by_id(revenue_id: int, user_id: str):
     """
     Retrieves details about a specific revenue entry by its ID from the database.
     Args:
         revenue_id (int): The ID of the revenue entry to retrieve.
-        user_id (int): The ID of the user requesting the revenue entry.
+        user_id (str): The ID of the user requesting the revenue entry.
     Returns:
         dict: A dictionary representing the revenue entry.
     Raises:
@@ -94,12 +94,12 @@ async def update_revenue(revenue_id: int, new_revenue: Revenue):
 
 
 @revenue_router.delete('/{revenue_id}')
-async def delete_revenue(revenue_id: int, user_id: int):
+async def delete_revenue(revenue_id: int, user_id: str):
     """
     Deletes an existing revenue entry from the database.
     Args:
         revenue_id (int): The ID of the revenue entry to delete.
-        user_id (int): The ID of the user requesting the deletion.
+        user_id (str): The ID of the user requesting the deletion.
     Returns:
         dict: A dictionary representing the deleted revenue entry.
     Raises:

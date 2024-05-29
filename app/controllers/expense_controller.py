@@ -8,7 +8,7 @@ expense_router = APIRouter()
 
 
 @expense_router.get('')
-async def get_expenses(user_id: int):
+async def get_expenses(user_id: str):
     """
     Retrieves details about all expenses from the database.
     Returns:
@@ -28,12 +28,12 @@ async def get_expenses(user_id: int):
 
 
 @expense_router.get('/{expense_id}')
-async def get_expense_by_id(expense_id: int, user_id: int):
+async def get_expense_by_id(expense_id: int, user_id: str):
     """
     Retrieves details about a specific expense entry by its ID from the database.
     Args:
         expense_id (int): The ID of the expense entry to retrieve.
-        user_id (int): The ID of the user requesting the expense.
+        user_id (str): The ID of the user requesting the expense.
     Returns:
         dict: A dictionary representing the expense entry.
     Raises:
@@ -94,12 +94,12 @@ async def update_expense(expense_id: int, new_expense: Expense):
 
 
 @expense_router.delete('/{expense_id}')
-async def delete_expense(expense_id: int, user_id: int):
+async def delete_expense(expense_id: int, user_id: str):
     """
     Deletes an existing expense entry from the database.
     Args:
         expense_id (int): The ID of the expense entry to delete.
-        user_id (int): The ID of the user requesting the deletion.
+        user_id (str): The ID of the user requesting the deletion.
     Returns:
         dict: A dictionary representing the deleted expense entry.
     Raises:

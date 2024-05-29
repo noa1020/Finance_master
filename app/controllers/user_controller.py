@@ -28,11 +28,11 @@ async def get_users():
 
 
 @user_router.get('/{user_id}')
-async def get_user_by_id(user_id: int):
+async def get_user_by_id(user_id: str):
     """
     Retrieves details about a specific user by their ID from the database.
     Args:
-        user_id (int): The ID of the user to retrieve.
+        user_id (str): The ID of the user to retrieve.
     Returns:
         dict: A dictionary representing the user.
     Raises:
@@ -94,11 +94,11 @@ async def login(email: str, password: str):
 
 
 @user_router.put('/{user_id}')
-async def update_user(user_id: int, new_user: User):
+async def update_user(user_id: str, new_user: User):
     """
     Updates an existing user in the database.
     Args:
-        user_id (int): The ID of the user to update.
+        user_id (str): The ID of the user to update.
         new_user (User): An instance of the User class representing the user to be updated.
     Returns:
         dict: A dictionary representing the updated user.
@@ -116,7 +116,7 @@ async def update_user(user_id: int, new_user: User):
 
 
 @user_router.delete('/{user_id}')
-async def delete_user(user_id: int):
+async def delete_user(user_id: str):
     """
     Deletes an existing user from the database.
     Args:

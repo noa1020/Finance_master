@@ -5,11 +5,11 @@ from app.models.revenue import Revenue
 from app.services import validation_service, balance_service, user_service
 
 
-async def get_revenues(user_id: int):
+async def get_revenues(user_id: str):
     """
     Retrieve all revenues from the database for a specific user.
     Args:
-        user_id (int): The ID of the user to retrieve revenues for.
+        user_id (str): The ID of the user to retrieve revenues for.
     Returns:
         list: A list of revenue documents from the database for the specified user.
     Raises:
@@ -25,12 +25,12 @@ async def get_revenues(user_id: int):
         raise e
 
 
-async def get_revenue_by_id(revenue_id: int, user_id: int):
+async def get_revenue_by_id(revenue_id: int, user_id: str):
     """
     Retrieve a revenue entry by its ID.
     Args:
         revenue_id (int): The ID of the revenue entry to retrieve.
-        user_id (int): The ID of the user requesting the revenue.
+        user_id (str): The ID of the user requesting the revenue.
     Returns:
         dict: The revenue document if found.
     Raises:
@@ -104,12 +104,12 @@ async def update_revenue(revenue_id: int, new_revenue: Revenue):
         raise e
 
 
-async def delete_revenue(revenue_id: int, user_id: int):
+async def delete_revenue(revenue_id: int, user_id: str):
     """
     Delete a revenue entry from the database.
     Args:
         revenue_id (int): The ID of the revenue entry to delete.
-        user_id (int): The ID of the user requesting the deletion.
+        user_id (str): The ID of the user requesting the deletion.
     Returns:
         dict: The deleted revenue document.
     Raises:
