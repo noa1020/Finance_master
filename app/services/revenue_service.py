@@ -60,8 +60,11 @@ async def add_revenue(new_revenue: Revenue):
     if new_revenue is None:
         raise ValueError("Revenue object is null")
     revenues = await repository.get_all(Collections.revenues)
-    max_item = max(revenues, key=lambda item: item['id'])
-    new_revenue.id = max_item['id'] + 1
+    if not revenues:
+        new_revenue.id = 0
+    else:
+        max_item = max(revenues, key=lambda item: item['id'])
+        new_revenue.id = max_item['id'] + 1
     try:
         validation_service.is_valid_revenue(new_revenue)
         results = await asyncio.gather(

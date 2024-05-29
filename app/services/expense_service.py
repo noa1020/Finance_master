@@ -60,8 +60,11 @@ async def add_expense(new_expense: Expense):
     if new_expense is None:
         raise ValueError("Expense object is null")
     expenses = await repository.get_all(Collections.expenses)
-    max_item = max(expenses, key=lambda item: item['id'])
-    new_expense.id = max_item['id'] + 1
+    if not expenses:
+        new_expense.id = 0
+    else:
+        max_item = max(expenses, key=lambda item: item['id'])
+        new_expense.id = max_item['id'] + 1
     try:
         validation_service.is_valid_expense(new_expense)
         results = await asyncio.gather(
